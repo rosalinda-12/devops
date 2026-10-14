@@ -1,0 +1,26 @@
+name: CI-CD Practica VM
+on:
+  push:
+    branches: [ main ]
+jobs:
+  test:
+    name: Verificar contenido
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+      - name: Verificar que existe el HTML
+        run: test -f index.html
+      - name: Verificar contenido esperado
+        run: grep "VM real" index.html
+  deploy:
+    name: Desplegar en la VM
+    needs: test
+    runs-on: self-hosted
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+      - name: Copiar a Nginx
+        run: sudo cp index.html /var/www/html/index.html
+      - name: Reiniciar Nginx
+        run: sudo systemctl restart nginx
